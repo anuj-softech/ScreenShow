@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/transparent"
+    android:gravity="right"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <ScrollView
+        android:id="@+id/epgscrll"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:background="@drawable/selected"
+        android:backgroundTint="#181818"
+        android:visibility="visible"
+        tools:ignore="SpeakableTextPresentCheck">
+
+        <LinearLayout
+            android:id="@+id/epglist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <include
+                layout="@layout/opbutton"
+                android:id="@+id/play_with" />
+
+            <include
+                layout="@layout/opbutton"
+                android:id="@+id/not_interested" />
+
+            <include
+                layout="@layout/opbutton"
+                android:id="@+id/open_chn" />
+
+            <include
+                layout="@layout/opbutton"
+                android:id="@+id/add_to_fav" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
+

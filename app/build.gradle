@@ -1,0 +1,57 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    namespace 'com.rock.screenshow'
+    compileSdk 35
+    defaultConfig {
+        applicationId "com.rock.screenshow"
+        minSdk 27
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            testCoverageEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation libs.converter.gson
+    implementation libs.glide
+    implementation libs.jsoup
+    implementation libs.recyclerview
+    implementation libs.androidx.media3.exoplayer
+    implementation libs.androidx.media3.exoplayer.dash
+    implementation libs.androidx.media3.ui
+    implementation libs.androidx.media3.exoplayer.hls
+    implementation libs.androidx.cardview
+    implementation libs.tvprovider
+    implementation libs.appcompat.v170
+    implementation libs.activity
+    implementation libs.media3.transformer
+    implementation libs.media3.effect
+    implementation libs.media3.common
+    implementation libs.material
+    implementation libs.kotlin.stdlib
+    implementation(libs.converter.moshi)
+    implementation(libs.moshi.kotlin)
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+
+}

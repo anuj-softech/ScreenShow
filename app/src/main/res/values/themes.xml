@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:colorFocusedHighlight">@android:color/transparent</item>
+        <item name="android:fontFamily">@font/nfont</item>
+    </style>
+    <style name="Theme.YoutubeTVWeb" parent="AppTheme" />
+
+    <style name="Theme.YoutubeTVWeb.Fullscreen" parent="Theme.YoutubeTVWeb">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:colorFocusedHighlight">@android:color/transparent</item>
+        <item name="android:fontFamily">@font/nfont</item>
+    </style>
+
+</resources>
