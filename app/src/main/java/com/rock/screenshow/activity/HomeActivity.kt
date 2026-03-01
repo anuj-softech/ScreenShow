@@ -1,11 +1,13 @@
 package com.rock.screenshow.activity
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -17,16 +19,37 @@ import com.rock.screenshow.adapter.VideoRowAdapter
 import com.rock.screenshow.databinding.ActivityHomeBinding
 import com.rock.screenshow.model.VideoItem
 import com.rock.screenshow.model.VideoRow
+import com.rock.screenshow.player.RockPlayer
 
 class HomeActivity : AppCompatActivity() {
     lateinit var lb: ActivityHomeBinding
     private lateinit var exoPlayer: ExoPlayer
 
+    var rows:List<VideoRow> = emptyList();
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lb = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(lb.getRoot())
-        loadHome()
+        setOnClick()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(rows.isEmpty()){
+            loadHome()
+        }
+    }
+
+    private fun setOnClick() {
+        lb.searchBtn.setOnClickListener {
+            val intent = Intent(this, SearchActivity::class.java)
+            startActivity(intent)
+        }
+        lb.settings.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun playSplash() {
@@ -68,14 +91,19 @@ class HomeActivity : AppCompatActivity() {
     private fun loadHome() {
         playSplash()
         val viewModel = HomeViewModel(this)
-        viewModel.rows.observe(this) { rows ->
+        viewModel.rows.observe(this) { homeRows ->
+            rows = homeRows
             stopSplash()
-            updateUI(rows)
+            updateUI()
+        }
+        viewModel.error.observe(this){ error->
+            Toast.makeText(applicationContext,error, Toast.LENGTH_SHORT).show()
+            stopSplash()
         }
         viewModel.loadHomeRows()
     }
 
-    private fun updateUI(rows: List<VideoRow>) {
+    private fun updateUI() {
         lb.parentLinearLayout.removeAllViews()
         showHistory()
         addShadowListener()
@@ -131,6 +159,7 @@ class HomeActivity : AppCompatActivity() {
     private fun showHistory() {
         val videoItems: List<VideoItem> = mutableListOf()
         Log.e("History trying", "History: " + videoItems.size)
+        if(videoItems.isEmpty()) return;
         val titleView = TextView(this)
         titleView.text = "Keep Watching"
         titleView.textSize = 18f
@@ -166,7 +195,9 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun play(item: VideoItem) {
-
+        val intent = Intent(this, RockPlayer::class.java)
+        intent.putExtra("fileId",item.id);
+        startActivity(intent)
     }
 
 }

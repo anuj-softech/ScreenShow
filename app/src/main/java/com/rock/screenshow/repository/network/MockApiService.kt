@@ -1,14 +1,19 @@
 package com.rock.screenshow.repository.network
 
-import com.rock.screenshow.model.*
+import com.rock.screenshow.model.PlayInfo
+import com.rock.screenshow.model.VideoItem
+import com.rock.screenshow.model.VideoItemType
+import com.rock.screenshow.model.VideoRow
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
+const val TAG = "MockApiService";
+
 class MockApiService : ApiService {
+
 
     override suspend fun fetchHomeRows(): List<VideoRow> {
         delay(500)
-
         return listOf(
             VideoRow(
                 title = "Trending Now",
@@ -31,7 +36,7 @@ class MockApiService : ApiService {
             VideoItem(
                 id = "vid$it",
                 title = "$query Result #$it",
-                type = "mp4",
+                type = VideoItemType.Movie,
                 thumbnail = "https://placehold.co/320x180?text=$query+$it",
                 duration = Random.nextInt(60, 600)
             )
@@ -51,7 +56,8 @@ class MockApiService : ApiService {
             ),
             resolution = "720p",
             bitrate = 1200,
-            meta = "Mock metadata for video $videoId"
+            meta = "Mock metadata for video $videoId",
+            headers = null
         )
     }
 
@@ -60,9 +66,9 @@ class MockApiService : ApiService {
             VideoItem(
                 id = "$prefix-$i",
                 title = "Sample $prefix Video #$i",
-                type = "mp4",
+                type = VideoItemType.Movie,
                 size = Random.nextLong(10_000_000, 100_000_000),
-                thumbnail = "https://placehold.co/300x200?text=Video+$i",
+                thumbnail = "https://placehold.co/300x200?text=Video$i",
                 duration = Random.nextInt(100, 1000),
                 meta = "Generated video data"
             )

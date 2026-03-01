@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 class HomeViewModel(context: Context) : ViewModel() {
 
     private val repository = MediaRepository(context)
+    val error: MutableLiveData<String> = MutableLiveData<String>()
 
     private val _rows = MutableLiveData<List<VideoRow>>()
     val rows: LiveData<List<VideoRow>> get() = _rows
@@ -22,6 +23,7 @@ class HomeViewModel(context: Context) : ViewModel() {
                 val result = repository.getHomeRows()
                 _rows.value = result
             } catch (e: Exception) {
+                error.value = "Something went wrong check server url in settings"
                 e.printStackTrace()
             }
         }

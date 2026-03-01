@@ -44,14 +44,14 @@
                    android:textSize="16sp" />
 
                <com.rock.screenshow.views.TVButton
-                   android:id="@+id/library"
+                   android:id="@+id/settings"
                    android:layout_width="120dp"
                    android:layout_height="40dp"
                    android:layout_gravity="center"
                    android:background="@drawable/rounded_corner_background"
                    android:backgroundTint="@color/tv_button_tint"
                    android:padding="6dp"
-                   android:text="Library"
+                   android:text="Settings"
                    android:textColor="@color/tv_button_text_color"
                    android:textSize="16sp" />
            </LinearLayout>

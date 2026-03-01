@@ -3,17 +3,14 @@ package com.rock.screenshow.adapter
 import android.animation.ValueAnimator
 import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.Target
 import com.rock.screenshow.databinding.ItemCardBinding
 import com.rock.screenshow.model.VideoItem
 import com.rock.screenshow.model.VideoRow
