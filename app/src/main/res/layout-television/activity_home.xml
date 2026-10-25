@@ -114,7 +114,7 @@
                     android:format12Hour="h:mm"
                     android:format24Hour="HH:mm"
                     android:textColor="#8C93A8"
-                    android:textSize="14sp" />
+                    android:textSize="22sp" />
             </LinearLayout>
         </RelativeLayout>
 
