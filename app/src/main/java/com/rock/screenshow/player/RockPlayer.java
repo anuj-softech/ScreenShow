@@ -64,8 +64,10 @@ import com.rock.screenshow.R;
 import com.rock.screenshow.databinding.RockPlayerBinding;
 import com.rock.screenshow.databinding.SelectordialogBinding;
 import com.rock.screenshow.databinding.TrackMediaBinding;
+import com.rock.screenshow.model.PlayInfo;
 import com.rock.screenshow.player.helper.RockPlayerHelper;
 import com.rock.screenshow.player.helper.ScreenShowPlayerHelper;
+import com.rock.screenshow.repository.MediaRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -74,6 +76,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RockPlayer extends Activity {
@@ -117,7 +120,7 @@ public class RockPlayer extends Activity {
     boolean sOpen = false;
     int initialY = 0;
     LoudnessEnhancer enhancer;
-    boolean isEpisodeChanged = true;
+    boolean isMediaContentChanged = true;
     private Runnable updateProgressAction;
     private SharedPreferences sharedPrefferences;
     private boolean userIsInHurry = false;
@@ -126,7 +129,6 @@ public class RockPlayer extends Activity {
     private boolean progTracking = false;
     private RockPlayerHelper currentPlayerHelper;
     private String artwork = "";
-    private boolean playNextEnable = true;
     private boolean languageMode = false;
     @UnstableApi
     private AnalyticsListener analyticsListener = new AnalyticsListener() {
@@ -209,21 +211,7 @@ public class RockPlayer extends Activity {
         paint.setColorFilter(new ColorMatrixColorFilter(finalMatrix));
         return paint;
     }
-
-    @SuppressLint("StaticFieldLeak")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        lb = RockPlayerBinding.inflate(getLayoutInflater());
-        setContentView(lb.getRoot());
-        setFullScreen();
-        setHeightOfWindow();
-        initVariables(getIntent());
-        initHandlers();
-        setOnclick();
-        lb.playerView.setScaleX(sharedPrefferences.getFloat("stretch", 1F));
-        lb.playerView.setScaleY(sharedPrefferences.getFloat("stretchy", 1F));
-    }
+    MediaRepository mediaRepository;
 
     private void setFullScreen() {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -252,24 +240,34 @@ public class RockPlayer extends Activity {
         super.onConfigurationChanged(newConfig);
     }
 
-    private void showMeta() {
-        addToHistory();
-        if (artwork != "") {
-            Glide.with(getApplicationContext()).load(artwork).transition(DrawableTransitionOptions.withCrossFade(200)).into(lb.p.artworkd);
-            lb.p.artworkd.animate().alpha(0.3f).setDuration(24000).setInterpolator(new CycleInterpolator(12)).start();
-        }
-        lb.p.videoTitle.setText(currentPlayerHelper.getTitle());
-        if (!currentPlayerHelper.getEpisode().isEmpty()) {
-            lb.p.titlealt.setText("Episode " + currentPlayerHelper.getEpisode());
-        }
+    @SuppressLint("StaticFieldLeak")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        lb = RockPlayerBinding.inflate(getLayoutInflater());
+        setContentView(lb.getRoot());
+        setFullScreen();
+        setHeightOfWindow();
+        mediaRepository = new MediaRepository(this);
+        initVariables(getIntent());
+        initHandlers();
+        setOnclick();
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        initVariables(intent);
-        isEpisodeChanged = true;
+    private void initVariables(Intent intent) {
+        if (intent.hasExtra("fileId")) {
+            PlayInfo playInfo = mediaRepository.getPlayInfoBlocking(intent.getStringExtra("fileId"));
+            currentPlayerHelper = new ScreenShowPlayerHelper(playInfo);
+        }
+        if (currentPlayerHelper != null) {
+            initPlayer();
+            try {
+                showMeta();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        sharedPrefferences = getSharedPreferences(CF.SHARED_PREFERENCES_ROCK_PLAYER, MODE_PRIVATE);
     }
 
     private void addToHistory() {
@@ -304,22 +302,45 @@ public class RockPlayer extends Activity {
         });
     }
 
-    private void initVariables(Intent intent) {
-        if (intent.hasExtra("fileId")) {
-            currentPlayerHelper = new ScreenShowPlayerHelper(intent.getStringExtra("fileId"),this);
+    private void showMeta() {
+        addToHistory();
+        if (!Objects.equals(artwork, "")) {
+            Glide.with(getApplicationContext()).load(artwork).transition(DrawableTransitionOptions.withCrossFade(200)).into(lb.p.artworkd);
+            lb.p.artworkd.animate().alpha(0.3f).setDuration(24000).setInterpolator(new CycleInterpolator(12)).start();
         }
-        if (currentPlayerHelper != null) {
-            initPlayer();
-            try {
-                showMeta();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            currentPlayerHelper.addSuggestions(lb, in -> {
-                playAnotherVideo(in);
+        lb.p.videoTitle.setText(currentPlayerHelper.getTitle());
+        lb.p.titlealt.setText(currentPlayerHelper.getSecondTitle());
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
+    private void initPlayer() {
+        RenderersFactory renderersFactory = new DefaultRenderersFactory(this);
+        player = new ExoPlayer.Builder(this).setRenderersFactory(renderersFactory).build();
+
+        lb.playerView.setPlayer(player);
+        player.addAnalyticsListener(analyticsListener);
+
+        Thread playerThread = new Thread(() -> {
+            Log.e(TAG, "initPlayer: " + "playerThread");
+            MediaSource mediaSource = currentPlayerHelper.getMediaSource(player);
+            runOnUiThread(() -> {
+                long defaultValue = currentPlayerHelper.getDefaultPlayOffset();
+                long startOffset = getStartOffset(defaultValue);
+                player.setMediaSource(mediaSource, startOffset);
+                if (!isAppStopped) {
+                    player.prepare();
+                    player.play();
+                    hideContpF();
+                    if (userIsInHurry) {
+                        player.seekTo(player.getDuration() * lb.p.prog.getProgress() / 500);
+                        userIsInHurry = false;
+                    }
+                    progLogic();
+                }
             });
-        }
-        sharedPrefferences = getSharedPreferences(CF.SHARED_PREFERENCES_ROCK_PLAYER, MODE_PRIVATE);
+        });
+        playerThread.start();
+
     }
 
     private void playAnotherVideo(Intent in) {
@@ -583,7 +604,6 @@ public class RockPlayer extends Activity {
         Log.e(TAG, "openS: " + "openS" + lb.s.getRoot().getHeight());
         va.start();
         lb.s.getRoot().setVisibility(View.VISIBLE);
-        currentPlayerHelper.focusSuggestion(lb);
         sOpen = true;
     }
 
@@ -601,14 +621,12 @@ public class RockPlayer extends Activity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        isAppStopped = false;
-        if (!isEpisodeChanged) {
-            initPlayer();
-            Log.e(TAG, "Resuming : " + "Previous");
+    private long getStartOffset(long defaultValue) {
+        long startOffset = defaultValue;
+        if (sharedPrefferences.getLong(currentPlayerHelper.getID() + "%", 0) < 90) {
+            startOffset = sharedPrefferences.getLong(currentPlayerHelper.getID() + "ms", defaultValue);
         }
+        return startOffset;
     }
 
     @SuppressLint("ResourceAsColor")
@@ -629,44 +647,22 @@ public class RockPlayer extends Activity {
         }
     }
 
-
-    @OptIn(markerClass = UnstableApi.class)
-    private void initPlayer() {
-        RenderersFactory renderersFactory = new DefaultRenderersFactory(this);
-        player = new ExoPlayer.Builder(this).setRenderersFactory(renderersFactory).build();
-
-        lb.playerView.setPlayer(player);
-        player.addAnalyticsListener(analyticsListener);
-
-        Thread playerThread = new Thread(() -> {
-            Log.e(TAG, "initPlayer: " + "playerThread");
-            MediaSource mediaSource = currentPlayerHelper.getMediaItem(player);
-            runOnUiThread(() -> {
-                long defaultValue = currentPlayerHelper.getDefaultOffset();
-                long startOffset = getStartOffset(defaultValue);
-                player.setMediaSource(mediaSource, startOffset);
-                if (!isAppStopped) {
-                    player.prepare();
-                    player.play();
-                    hideContpF();
-                    if (userIsInHurry) {
-                        player.seekTo(player.getDuration() * lb.p.prog.getProgress() / 500);
-                        userIsInHurry = false;
-                    }
-                    progLogic();
-                }
-            });
-        });
-        playerThread.start();
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isAppStopped = false;
+        if (!isMediaContentChanged) {
+            initPlayer();
+            Log.e(TAG, "Resuming : " + "Previous");
+        }
     }
 
-    private long getStartOffset(long defaultValue) {
-        long startOffset = defaultValue;
-        if (sharedPrefferences.getLong(currentPlayerHelper.getEpisodeID() + "%", 0) < 90) {
-            startOffset = sharedPrefferences.getLong(currentPlayerHelper.getEpisodeID() + "ms", defaultValue);
-        }
-        return startOffset;
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        initVariables(intent);
+        isMediaContentChanged = true;
     }
 
     private void progLogic() {
@@ -675,7 +671,6 @@ public class RockPlayer extends Activity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     showCont(false);
-                    long newPosition = player.getDuration() * lb.p.prog.getProgress() / 500;
                     lb.p.time.setText(stringForTime(player.getDuration() * lb.p.prog.getProgress() / 500));
                 }
             }
@@ -725,7 +720,7 @@ public class RockPlayer extends Activity {
     @Override
     protected void onStop() {
         isAppStopped = true;
-        isEpisodeChanged = false;
+        isMediaContentChanged = false;
         new Thread(() -> {
             Glide.get(this).clearDiskCache();
         }).start();
@@ -737,9 +732,9 @@ public class RockPlayer extends Activity {
             Log.e("t", "" + player.getCurrentPosition() / 1000);
             long currnt = player.getCurrentPosition();
             long total = player.getDuration();
-            String episodeID = currentPlayerHelper.getEpisodeID();
-            sharedPrefferences.edit().putLong(episodeID + "ms", currnt).apply();
-            sharedPrefferences.edit().putLong(episodeID + "%", currnt * 100 / total).apply();
+            String idCnt = currentPlayerHelper.getID();
+            sharedPrefferences.edit().putLong(idCnt + "ms", currnt).apply();
+            sharedPrefferences.edit().putLong(idCnt + "%", currnt * 100 / total).apply();
         } catch (Exception e) {
             finish();
         }
@@ -918,9 +913,8 @@ public class RockPlayer extends Activity {
                 lb.p.time2.setText(stringForTime(duration));
                 long remainingTime = duration - currentPosition;
                 if (remainingTime < 20000 && remainingTime > 5000) {
-                    if (playNextEnable) {
+                    if (currentPlayerHelper.isAutoPlayNext()) {
                         player.stop();
-                        playNextEnable = false;
                         playNextVideo();
                         return;
                     }
@@ -942,11 +936,7 @@ public class RockPlayer extends Activity {
     }
 
     private void playNextVideo() {
-        Object ob = currentPlayerHelper.playNext();
-        Log.e(TAG, "playNextVideo: " + ob);
-        if (ob != null) {
-            playAnotherVideo(currentPlayerHelper.startPlayNext(ob));
-        }
+
     }
 
     private String stringForTime(long timeMs) {

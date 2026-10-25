@@ -110,11 +110,15 @@ class HomeActivity : AppCompatActivity() {
         for (videoRow in rows) {
             val titleView = TextView(this)
             titleView.text = videoRow.title
-            titleView.textSize = 18f
-            titleView.setPadding(16, 16, 16, 8)
+            titleView.textSize = 17f
+            titleView.setTextColor(android.graphics.Color.parseColor("#E6E9F0"))
+            titleView.setTypeface(null, android.graphics.Typeface.BOLD)
+            titleView.setPadding(28, 22, 28, 8)
             lb.parentLinearLayout.addView(titleView)
 
             val recyclerView = RecyclerView(this)
+            recyclerView.clipToPadding = false
+            recyclerView.setPadding(20, 0, 20, 0)
             recyclerView.setLayoutParams(
                 LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -162,10 +166,14 @@ class HomeActivity : AppCompatActivity() {
         if(videoItems.isEmpty()) return;
         val titleView = TextView(this)
         titleView.text = "Keep Watching"
-        titleView.textSize = 18f
-        titleView.setPadding(16, 16, 16, 8) // Add padding
+        titleView.textSize = 17f
+        titleView.setTextColor(android.graphics.Color.parseColor("#E6E9F0"))
+        titleView.setTypeface(null, android.graphics.Typeface.BOLD)
+        titleView.setPadding(28, 22, 28, 8)
         lb.parentLinearLayout.addView(titleView)
         val recyclerView = RecyclerView(this)
+        recyclerView.clipToPadding = false
+        recyclerView.setPadding(20, 0, 20, 0)
         recyclerView.setLayoutParams(
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

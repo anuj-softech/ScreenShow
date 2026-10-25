@@ -56,10 +56,14 @@ public class TVButton extends Button {
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
         if (focused) {
             setBackgroundTintList(ColorStateList.valueOf(-1)); // White background
-            setTextColor(Color.BLACK); // Black text
+            // Black text
+            setTextColor(Color.BLACK);
+            setCompoundDrawableTintList(ColorStateList.valueOf(Color.BLACK));
         } else {
             setBackgroundTintList(xmlback); // Original background
-            setTextColor(xmltxtcolor); // Original text color
+            setTextColor(xmltxtcolor);
+            setCompoundDrawableTintList(xmltxtcolor);
+            // Original text color
         }
     }
 }

@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.rock.screenshow.R
 import com.rock.screenshow.databinding.ItemCardBinding
 import com.rock.screenshow.model.VideoItem
 import com.rock.screenshow.model.VideoRow
@@ -99,6 +101,9 @@ class VideoRowAdapter(
         fun bind(videoItem: VideoItem) {
             Glide.with(binding.cardPoster)
                 .load(videoItem.thumbnail)
+                .placeholder(R.drawable.media_placeholder)
+                .error(R.drawable.media_placeholder)
+                .transition(DrawableTransitionOptions.withCrossFade(200))
                 .into(binding.cardPoster)
         }
     }

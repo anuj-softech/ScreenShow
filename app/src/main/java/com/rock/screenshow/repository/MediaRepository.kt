@@ -20,7 +20,6 @@ class MediaRepository(context: Context) {
     val MOCK = true
 
     init {
-
         val apiSP = context.getSharedPreferences(CF.API_SP, Context.MODE_PRIVATE)
         serverUrl = apiSP.getString(CF.SERVER_URL, "http://localhost:12566/").toString()
         val retrofit = Retrofit.Builder()

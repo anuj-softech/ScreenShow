@@ -1,6 +1,5 @@
 package com.rock.screenshow.repository.network
 
-import android.app.appsearch.SearchResult
 import com.rock.screenshow.model.PlayInfo
 import com.rock.screenshow.model.VideoItem
 import com.rock.screenshow.model.VideoRow
@@ -17,4 +16,11 @@ interface ApiService {
 
     @GET("play")
     suspend fun getPlayInfo(@Query("id") videoId: String): PlayInfo
+
+    @GET("episodes")
+    suspend fun getEpisodes(@Query("id") seriesId: String): List<VideoRow>
+
+    @GET("suggestions")
+    suspend fun getSuggestions(query: String): List<VideoRow>
 }
+

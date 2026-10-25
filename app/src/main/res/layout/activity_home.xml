@@ -4,31 +4,118 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="#140000">
+    android:background="#0C101B">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <FrameLayout
+        <!-- Google TV Style Top Navigation Bar -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal">
+            android:layout_height="64dp"
+            android:paddingStart="28dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="28dp"
+            android:paddingBottom="12dp">
 
-            <ImageView
-                android:id="@+id/logo"
-                android:layout_width="40dp"
-                android:layout_marginLeft="30dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_account_circle" />
+            <!-- Left Navigation Menu (Search + Tabs) -->
+            <LinearLayout
+                android:id="@+id/top_nav_left"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        </FrameLayout>
+                <com.rock.screenshow.views.TVButton
+                    android:id="@+id/searchBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:background="@drawable/rounded_corner_background"
+                    android:backgroundTint="#242B3D"
+                    android:drawableStart="@drawable/search_24px"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/white"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="Search"
+                    android:textAllCaps="false"
+                    android:textColor="#E0E3EA"
+                    android:textSize="14sp" />
 
+                <TextView
+                    android:id="@+id/tab_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:text="Home"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tab_discover"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:text="Discover"
+                    android:textColor="#8C93A8"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tab_apps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:text="Apps"
+                    android:textColor="#8C93A8"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Right Controls (Settings, Profile, Clock) -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.rock.screenshow.views.TVButton
+                    android:id="@+id/settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:background="@drawable/rounded_corner_background"
+                    android:backgroundTint="#242B3D"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="Settings"
+                    android:textAllCaps="false"
+                    android:textColor="#E0E3EA"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/logo"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginStart="14dp"
+                    android:src="@drawable/ic_account_circle"
+                    app:tint="#D0D5E2" />
+
+                <TextClock
+                    android:id="@+id/clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:textColor="#8C93A8"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <!-- Content Rows Section -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -36,9 +123,11 @@
 
             <ScrollView
                 android:id="@+id/scrollView"
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:fillViewport="true"
+                android:paddingBottom="32dp">
 
                 <LinearLayout
                     android:id="@+id/parentLinearLayout"
@@ -52,46 +141,14 @@
             <View
                 android:id="@+id/topshadow"
                 android:layout_width="match_parent"
-                android:layout_height="25dp"
+                android:layout_height="20dp"
                 android:background="@drawable/shadow_bottom"
-                android:rotation="180" />
+                android:rotation="180"
+                android:visibility="gone" />
         </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <com.rock.screenshow.views.TVButton
-                android:id="@+id/searchBtn"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:background="@drawable/rounded_corner_background"
-                android:backgroundTint="#310E0E"
-                android:padding="6dp"
-                android:text="Search"
-                android:textColor="@color/tv_button_text_color"
-                android:textSize="12sp" />
-
-
-            <com.rock.screenshow.views.TVButton
-                android:id="@+id/settings"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:background="@drawable/rounded_corner_background"
-                android:backgroundTint="#310E0E"
-                android:padding="6dp"
-                android:text="Settings"
-                android:textColor="@color/tv_button_text_color"
-                android:textSize="12sp" />
-        </LinearLayout>
     </LinearLayout>
 
+    <!-- Splash Screen Overlay -->
     <FrameLayout
         android:id="@+id/splash"
         android:layout_width="match_parent"
@@ -103,9 +160,9 @@
             android:id="@+id/splash_player"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:resize_mode="zoom"
             app:show_buffering="never"
             app:surface_type="texture_view"
-            app:resize_mode="zoom"
             app:use_controller="false" />
 
         <ImageView
@@ -115,11 +172,6 @@
             android:layout_gravity="center"
             android:scaleType="fitCenter"
             android:src="@drawable/loader"
-            android:translationY="120dp">
-
-        </ImageView>
-
+            android:translationY="120dp" />
     </FrameLayout>
-
-
 </FrameLayout>

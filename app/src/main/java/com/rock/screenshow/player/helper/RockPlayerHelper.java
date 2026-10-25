@@ -1,74 +1,87 @@
 package com.rock.screenshow.player.helper;
 
-import android.content.Context;
-import android.content.Intent;
-
-import androidx.annotation.OptIn;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.exoplayer.DefaultRenderersFactory;
-import androidx.media3.exoplayer.RenderersFactory;
-import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
-import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.source.MediaSource;
 
-import com.rock.screenshow.databinding.RockPlayerBinding;
-import com.rock.screenshow.player.SuggestionCallback;
-
-import java.util.Collections;
-import java.util.List;
+import com.rock.screenshow.model.PlayInfo;
+import com.rock.screenshow.model.RockPlayerConfig;
 
 public class RockPlayerHelper {
     private static final String TAG = "RockPlayerHelper";
+    public final PlayInfo playInfo;
+    public RockPlayerConfig playerConf;
 
-    public RockPlayerHelper() {
+
+    public RockPlayerHelper(PlayInfo playInfo) {
+        this.playInfo = playInfo;
+        this.playerConf = playInfo.getPlayerConfig();
     }
 
     public void addToHistory() {
     }
 
-    public MediaSource getMediaItem(Object ob) {
+    public MediaSource getMediaSource(Object ob) {
         return null;
-    }
-    @OptIn(markerClass = UnstableApi.class)
-    public RenderersFactory getRenderersFactory(Context context) {
-        return new DefaultRenderersFactory(context).setMediaCodecSelector((mimeType, requiresSecureDecoder, requiresTunnelingDecoder) -> {
-            List<MediaCodecInfo> codecs = MediaCodecSelector.DEFAULT.getDecoderInfos(mimeType, requiresSecureDecoder, requiresTunnelingDecoder);
-            if (codecs.isEmpty()) {
-                return Collections.emptyList();
-            }
-            return Collections.singletonList(codecs.get(0));
-        });
     }
 
     public String getTitle() {
         return "RockPlayer";
     }
 
-    public String getEpisode() {
+    public String getMetaData() {
         return "";
     }
 
-    public String getEpisodeID() {
-        return "default";
-    }
-    public Object playNext(){
-        return null;
+    public String getSecondTitle() {
+        return "video";
     }
 
-    public Intent startPlayNext(Object ob) {
-
-        return null;
+    public String getID() {
+        return playInfo.getId();
     }
 
-    public void addSuggestions(RockPlayerBinding lb, SuggestionCallback suggestionCallback) {
-
-    }
-
-    public void focusSuggestion(RockPlayerBinding lb) {
-
-    }
-
-    public long getDefaultOffset() {
+    public long getDefaultPlayOffset() {
         return 0;
+    }
+
+    public boolean isAudioBoost() {
+        if(playerConf != null)
+            return playerConf.isAudioBoost();
+        return false;
+    }
+
+    public boolean isColorBoost(){
+        if(playerConf != null)
+            return playerConf.isColorBoost();
+        return false;
+    }
+
+    public boolean isAutoPlayNext() {
+        if(playerConf != null)
+            return playerConf.isAutoPlayNext();
+        return false;
+    }
+
+    public boolean isStretched() {
+        if(playerConf != null)
+            return playerConf.isStretched();
+        return false;
+    }
+
+    public int[] maxQuality() {
+        if(playerConf != null) {
+            String[] qt = playerConf.getMaxQuality().split(",");
+            return new int[]{Integer.parseInt(qt[0]), Integer.parseInt(qt[1])};
+        }
+        return new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE};
+    }
+
+    public boolean isSubtitleEnabled() {
+        if(playerConf != null)
+            return playerConf.isSubtitleEnabled();
+        return true;
+    }
+
+    public boolean isFFMPEGDecoder() {
+        return playInfo.getDecoder() != null && playInfo.getDecoder().equalsIgnoreCase("ffmpeg");
     }
 }
